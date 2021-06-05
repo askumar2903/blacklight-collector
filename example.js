@@ -2,7 +2,7 @@ const { collector } = require("./build");
 const { join } = require("path");
 
 (async () => {
-  const EMULATE_DEVICE = "iPhone X";
+  const EMULATE_DEVICE = "Tor";
 
   // Save the results to a folder
   let OUT_DIR = true;
@@ -11,7 +11,7 @@ const { join } = require("path");
   const URL = "example.com";
 
   const defaultConfig = {
-    inUrl: `http://${URL}`,
+    inUrl: process.argv.slice(2)[0],
     numPages: 3,
     headless: true,
     emulateDevice: EMULATE_DEVICE,

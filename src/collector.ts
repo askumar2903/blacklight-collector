@@ -25,12 +25,13 @@ import { autoScroll, fillForms } from "./pptr-utils/interaction-utils";
 import { setupSessionRecordingInspector } from "./session-recording";
 import { setupThirdpartyTrackersInspector } from "./third-party-trackers";
 import { clearDir } from "./utils";
+
 export const collector = async ({
   inUrl,
   outDir = join(process.cwd(), "bl-tmp"),
   headless = true,
   title = "Blacklight Inspection",
-  emulateDevice = "iPhone X",
+  emulateDevice = "Tor",
   captureHar = true,
   captureLinks = false,
   enableAdBlock = false,
@@ -84,8 +85,34 @@ export const collector = async ({
     start_time: new Date(),
     end_time: null,
   };
+
+  const additionalDevices = [{
+    name: 'Desktop 1920x1080',
+    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+    viewport: {
+      width: 1920,
+      height: 1080,
+    },
+  },
+  {
+    name: 'Desktop 1024x768',
+    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+    viewport: {
+      width: 1024,
+      height: 768,
+    },
+  },
+  {
+    name: 'Tor',
+    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+    viewport: {
+      width: 1000,
+      height: 1000,
+    },
+  }];
+
   if (emulateDevice) {
-    output.deviceEmulated = puppeteer.devices[emulateDevice];
+    output.deviceEmulated = additionalDevices.find(d => d.name === emulateDevice);
   }
 
   // Log network requests and page links
