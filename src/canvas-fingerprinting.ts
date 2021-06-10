@@ -56,6 +56,7 @@ type CanvasCallMap = Map<ScriptUrl, Set<CanvasCallValue>>;
  */
 export const sortCanvasCalls = (canvasCalls: BlacklightEvent[]) => {
   const CANVAS_READ_FUNCS = [
+    "HTMLCanvasElement.getContext",
     "HTMLCanvasElement.toDataURL",
     "CanvasRenderingContext2D.getImageData",
   ];
@@ -68,6 +69,7 @@ export const sortCanvasCalls = (canvasCalls: BlacklightEvent[]) => {
     "CanvasRenderingContext2D.save",
     "CanvasRenderingContext2D.restore",
     "HTMLCanvasElement.addEventListener",
+    "HTMLCanvasElement.getContext",
   ];
 
   const cReads = new Map() as CanvasCallMap;

@@ -166,8 +166,7 @@ export const collector = async ({
       },
     };
     if (emulateDevice) {
-      const deviceOptions = puppeteer.devices[emulateDevice];
-      page.emulate(deviceOptions);
+      page.emulate(additionalDevices.find(d => d.name === emulateDevice));
     }
     // record all requested hosts
     await page.on("request", request => {
@@ -213,6 +212,9 @@ export const collector = async ({
       timeout: defaultTimeout,
       waitUntil: defaultWaitUntil as LoadEvent,
     });
+    const $canvas = await page.$$("canvas");
+    console.log($canvas.length)
+
     await savePageContent(pageIndex, outDir, page, saveScreenshots);
     pageIndex++;
   } catch (error) {
