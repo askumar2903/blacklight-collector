@@ -1,4 +1,4 @@
-# Blacklight-Collector
+# Tor-Browser-Friendliness
 
 For more information about the `blacklight-collector` please read our [methodology](https://themarkup.org/blacklight/2020/09/22/how-we-built-a-real-time-privacy-inspector).
 
