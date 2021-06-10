@@ -212,8 +212,17 @@ export const collector = async ({
       timeout: defaultTimeout,
       waitUntil: defaultWaitUntil as LoadEvent,
     });
-    const $canvas = await page.$$("canvas");
-    console.log($canvas.length)
+    const fontList = await page.evaluate((selector) => {
+      let elems = Array.from(document.querySelectorAll(selector));
+      let links = elems.map(element => getComputedStyle(element).fontFamily);
+      return links;
+    }, "*");
+
+    const fontSet = new Set(fontList.reduce((acc, font) => {
+      font = font || "";
+      return [...acc, ...font.split(",").map(str => str.trim().replace(/\"/g, ''))];
+    }, []));
+    console.log(fontSet);
 
     await savePageContent(pageIndex, outDir, page, saveScreenshots);
     pageIndex++;
