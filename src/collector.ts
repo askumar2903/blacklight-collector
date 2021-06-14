@@ -12,7 +12,6 @@ import {
   clearCookiesCache,
   setupHttpCookieCapture,
 } from "./cookie-collector";
-import { font_analyse } from "./font_list"
 import { setupBlacklightInspector } from "./inspector";
 import { setupKeyLoggingInspector } from "./key-logging";
 import { getLogger } from "./logger";
@@ -26,6 +25,31 @@ import { autoScroll, fillForms } from "./pptr-utils/interaction-utils";
 import { setupSessionRecordingInspector } from "./session-recording";
 import { setupThirdpartyTrackersInspector } from "./third-party-trackers";
 import { clearDir } from "./utils";
+
+const additionalDevices = [{
+  name: 'Desktop 1920x1080',
+  userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+  viewport: {
+    width: 1920,
+    height: 1080,
+  },
+},
+{
+  name: 'Desktop 1024x768',
+  userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+  viewport: {
+    width: 1024,
+    height: 768,
+  },
+},
+{
+  name: 'Tor',
+  userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+  viewport: {
+    width: 1000,
+    height: 1000,
+  },
+}];
 
 export const collector = async ({
   inUrl,
@@ -52,7 +76,8 @@ export const collector = async ({
     // "key_logging",
     // "session_recorders",
     "third_party_trackers",
-    "fingerprintable_api_calls"
+    "fingerprintable_api_calls",
+    "filtered_fonts",
   ],
 }) => {
   clearDir(outDir);
@@ -89,31 +114,6 @@ export const collector = async ({
     TBF_score: null,
   };
 
-  const additionalDevices = [{
-    name: 'Desktop 1920x1080',
-    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
-    viewport: {
-      width: 1920,
-      height: 1080,
-    },
-  },
-  {
-    name: 'Desktop 1024x768',
-    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
-    viewport: {
-      width: 1024,
-      height: 768,
-    },
-  },
-  {
-    name: 'Tor',
-    userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
-    viewport: {
-      width: 1000,
-      height: 1000,
-    },
-  }];
-
   if (emulateDevice) {
     output.deviceEmulated = additionalDevices.find(d => d.name === emulateDevice);
   }
@@ -136,6 +136,7 @@ export const collector = async ({
   let har = {} as any;
   let page_response = null;
   let loadError = false;
+  let fonts: Set<string> = null;
   const userDataDir = saveBrowserProfile
     ? join(outDir, "browser-profile")
     : undefined;
@@ -215,18 +216,7 @@ export const collector = async ({
       timeout: defaultTimeout,
       waitUntil: defaultWaitUntil as LoadEvent,
     });
-    var fontList = await page.evaluate((selector) => {
-      let elems = Array.from(document.querySelectorAll(selector));
-      let links = elems.map(element => getComputedStyle(element).fontFamily);
-      return links;
-    }, "*");
-
-    var fontSet = new Set(fontList.reduce((acc, font) => {
-      font = font || "";
-      return [...acc, ...font.split(",").map(str => str.trim().replace(/\"/g, ''))];
-    }, []));
-    // console.log(fontSet)
-
+    fonts = await getFonts(page);
     await savePageContent(pageIndex, outDir, page, saveScreenshots);
     pageIndex++;
   } catch (error) {
@@ -405,14 +395,14 @@ export const collector = async ({
   });
   // We only consider something to be a third party tracker if:
   // The domain is different to that of the final url (after any redirection) of the page the user requested to load.
-  const blocked_fontlist = font_analyse(fontSet)
-  console.log(blocked_fontlist)
+
   const reports = blTests.reduce((acc, cur) => {
     acc[cur] = generateReport(
       cur,
       event_data,
       outDir,
       REDIRECTED_FIRST_PARTY.domain,
+      { fonts },
     );
 
     return acc;
@@ -425,3 +415,18 @@ export const collector = async ({
   }
   return { status: "success", ...output, reports };
 };
+
+const getFonts = async (page: puppeteer.Page) => {
+  const fontList = await page.evaluate((selector) => {
+    const elems: Element[] = Array.from(document.querySelectorAll(selector));
+    const fontFamilies: string[] = elems.map(element => getComputedStyle(element).fontFamily);
+    return fontFamilies;
+  }, "*");
+
+  const fontSet: Set<string> = new Set(fontList.reduce((acc, font) => {
+    font = font || "";
+    return [...acc, ...font.split(",").map(str => str.trim().replace(/\"/g, ''))];
+  }, []));
+  return fontSet;
+}
+

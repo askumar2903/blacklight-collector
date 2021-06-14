@@ -5,6 +5,7 @@ import {
   FB_ADVANCED_MATCHING_PARAMETERS,
   FB_STANDARD_EVENTS,
 } from "./fb-pixel-lookup";
+import { getBlockedFonts } from "./font-filtering";
 import {
   BEHAVIOUR_TRACKING_EVENTS,
   BlacklightEvent,
@@ -16,7 +17,7 @@ import {
 } from "./types";
 import { getScriptUrl, groupBy, loadJSONSafely } from "./utils";
 
-export const generateReport = (reportType, messages, dataDir, url) => {
+export const generateReport = (reportType, messages, dataDir, url, metadata) => {
   const eventData = getEventData(reportType, messages);
   switch (reportType) {
     case "cookies":
@@ -37,6 +38,8 @@ export const generateReport = (reportType, messages, dataDir, url) => {
       return reportSessionRecorders(eventData);
     case "third_party_trackers":
       return reportThirdPartyTrackers(eventData, url);
+    case "filtered_fonts":
+      return reportFilteredFonts(metadata);
     default:
       return {};
   }
@@ -308,3 +311,7 @@ const getDomainSafely = (message: KeyLoggingEvent) => {
     return "";
   }
 };
+
+const reportFilteredFonts = ({ fonts }: { fonts: Set<string> }) => {
+  return [...getBlockedFonts("macOS", fonts)];
+}

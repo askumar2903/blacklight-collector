@@ -1,11 +1,4 @@
-
-export function font_analyse(
-requested_fonts,
-)
-{
-
-
-const setDifference = (a, b) => new Set([...a].filter((x) => !b.has(x)));
+const setDifference = (a: Set<string>, b: Set<string>) => new Set([...a].filter((x) => !b.has(x)));
 // const setIntersection = (a, b) => new Set([...a].filter((x) => b.has(x)));
 // const setUnion = (a, b) => new Set([...a, ...b]);
 
@@ -185,31 +178,28 @@ const FONT_WHITELIST = {
 };
 
 const FONT_WHITELIST_LOOKUP_BY_PLATFORM = (() => {
-    return Object.keys(FONT_WHITELIST).reduce((map, k) => {
-        map[k] = new Set(FONT_WHITELIST[k].map((font) => font.toLowerCase()));
+    return Object.keys(FONT_WHITELIST).reduce((map: object, k: string) => {
+        map[k.toLowerCase()] = new Set(FONT_WHITELIST[k].map((font: string) => font.toLowerCase()));
         return map;
     }, {});
 })();
 
-const exampleData = {
-    platform: "Windows",
-    requestedFonts: requested_fonts,
-};
 
-const platform = exampleData.platform;
+export const getBlockedFonts = (platform: string, fonts: string[] | Set<string>) => {
 
-const allowedFonts = FONT_WHITELIST[platform.toLowerCase()];
-const allowedSet = FONT_WHITELIST_LOOKUP_BY_PLATFORM[platform.toLowerCase()];
+    // const allowedFonts = FONT_WHITELIST[platform.toLowerCase()];
+    const allowedSet = FONT_WHITELIST_LOOKUP_BY_PLATFORM[platform.toLowerCase()];
 
-const requestedFonts = exampleData.requestedFonts;
-const requestedSet = new Set(requestedFonts.map((font) => font.toLowerCase()));
+    const requestedFonts = [...fonts];
+    const requestedSet = new Set(requestedFonts.map((font) => font.toLowerCase()));
 
-const blockedSet = setDifference(requestedSet, allowedSet);
+    const blockedSet = setDifference(requestedSet, allowedSet);
 
-console.log(`Fonts requested: ${requestedFonts}`);
-console.log(`Fonts allowed on ${platform} : ${allowedFonts}`);
+    // console.log(`Fonts requested: ${requestedFonts}`);
+    // console.log(`Fonts allowed on ${platform} : ${allowedFonts}`);
 
-console.log("\n");
-console.log(`Number of fonts blocked : ${blockedSet.size} = ${[...blockedSet]}`);
-return blockedSet;
+    // console.log("\n");
+    // console.log(`Number of fonts blocked : ${blockedSet.size} = ${[...blockedSet]}`);
+    return blockedSet;
+
 }
