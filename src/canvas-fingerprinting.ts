@@ -75,9 +75,9 @@ export const sortCanvasCalls = (canvasCalls: BlacklightEvent[]) => {
   const cReads = new Map() as CanvasCallMap;
   const cDataUrls = new Map() as CanvasCallMap;
   const cWrites = new Map() as CanvasCallMap;
-  const cTexts = new Map() as CanvasCallMap;
+  // const cTexts = new Map() as CanvasCallMap;
   const cBanned = new Map() as CanvasCallMap;
-  const cStyles = new Map() as CanvasCallMap;
+  // const cStyles = new Map() as CanvasCallMap;
   for (const item of canvasCalls) {
     const { url, data } = item as JsInstrumentEvent;
     const url_host = parse(url).hostname;
@@ -115,16 +115,16 @@ export const sortCanvasCalls = (canvasCalls: BlacklightEvent[]) => {
       cWrites.has(script_url)
         ? cWrites.get(script_url).add(url_host)
         : cWrites.set(script_url, new Set([url_host]));
-      cTexts.has(script_url)
-        ? cTexts.get(script_url).add(text)
-        : cTexts.set(script_url, new Set([text]));
+      // cTexts.has(script_url)
+      //   ? cTexts.get(script_url).add(text)
+      //   : cTexts.set(script_url, new Set([text]));
     } else if (
       symbol === "CanvasRenderingContext2D.fillStyle" &&
       operation === "set"
     ) {
-      cStyles.has(script_url)
-        ? cStyles.get(script_url).add(value)
-        : cStyles.set(script_url, new Set([value]));
+      // cStyles.has(script_url)
+      //   ? cStyles.get(script_url).add(value)
+      //   : cStyles.set(script_url, new Set([value]));
     } else if (
       CANVAS_FP_DO_NOT_CALL_LIST.includes(symbol) &&
       operation === "call"
@@ -138,8 +138,8 @@ export const sortCanvasCalls = (canvasCalls: BlacklightEvent[]) => {
     cBanned,
     cDataUrls,
     cReads,
-    cStyles,
-    cTexts,
+    // cStyles,
+    // cTexts,
     cWrites,
   };
 };
@@ -153,8 +153,8 @@ export const getCanvasFp = (
   canvasCalls,
 ): {
   fingerprinters: string[];
-  texts: any;
-  styles: any;
+  // texts: any;
+  // styles: any;
   data_url: any;
 } => {
   const {
@@ -162,8 +162,8 @@ export const getCanvasFp = (
     cReads,
     cWrites,
     cBanned,
-    cTexts,
-    cStyles,
+    // cTexts,
+    // cStyles,
   } = sortCanvasCalls(canvasCalls);
 
   const fingerprinters: Set<string> = new Set();
@@ -197,8 +197,8 @@ export const getCanvasFp = (
   return {
     data_url: serializeCanvasCallMap(cDataUrls),
     fingerprinters: Array.from(fingerprinters),
-    styles: serializeCanvasCallMap(cStyles),
-    texts: serializeCanvasCallMap(cTexts),
+    // styles: serializeCanvasCallMap(cStyles),
+    // texts: serializeCanvasCallMap(cTexts),
   };
 };
 

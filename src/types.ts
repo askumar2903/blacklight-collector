@@ -144,6 +144,10 @@ export const FINGERPRINTABLE_WINDOW_APIS = {
     "HTMLCanvasElement.toDataURL",
     "HTMLCanvasElement.addEventListener",
   ],
+  CANVAS_FONT: [
+    "CanvasRenderingContext2D.measureText",
+    "CanvasRenderingContext2D.font",
+  ],
   MEDIA_DEVICES: ["window.navigator.mediaDevices.enumerateDevices"],
   MIME: ["window.navigator.mimeTypes"],
   NAVIGATOR: [
@@ -163,6 +167,7 @@ export const FINGERPRINTABLE_WINDOW_APIS = {
     "window.navigator.userAgent",
     "window.navigator.vendorSub",
     "window.navigator.vendor",
+    "window.navigator.hardwareConcurrency"
   ],
   PLUGIN: ["window.navigator.plugins"],
   SCREEN: ["window.screen.pixelDepth", "window.screen.colorDepth"],

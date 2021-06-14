@@ -11,10 +11,11 @@ export const getLogger = ({ outDir = "", quiet = false }) => {
 
   log_transports.push(
     new transports.Console({
-      level: "info",
+      level: "error",
       silent: quiet,
     }),
   );
+  
 
   filename = outDir
     ? path.join(outDir, "inspection-log.ndjson")

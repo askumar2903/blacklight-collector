@@ -27,6 +27,7 @@ export function instrumentFingerprintingApis({
     "userAgent",
     "vendorSub",
     "vendor",
+    "hardwareConcurrency"
   ];
   navigatorProperties.forEach(function(property) {
     instrumentObjectProperty(window.navigator, "window.navigator", property);

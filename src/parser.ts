@@ -82,6 +82,7 @@ const getEventData = (reportType, messages): BlacklightEvent[] => {
     default:
       return [];
   }
+  // console.log(filtered.length)
   return filtered.map(m => m.message);
 };
 const reportSessionRecorders = (eventData: BlacklightEvent[]) => {

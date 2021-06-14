@@ -1,0 +1,215 @@
+
+export function font_analyse(
+requested_fonts,
+)
+{
+
+
+const setDifference = (a, b) => new Set([...a].filter((x) => !b.has(x)));
+// const setIntersection = (a, b) => new Set([...a].filter((x) => b.has(x)));
+// const setUnion = (a, b) => new Set([...a, ...b]);
+
+const FONT_WHITELIST = {
+    Windows: [
+        "Arial",
+        "Batang",
+        "바탕",
+        "Cambria Math",
+        "Courier New",
+        "Euphemia",
+        "Gautami",
+        "Georgia",
+        "Gulim",
+        "굴림",
+        "GulimChe",
+        "굴림체",
+        "Iskoola Pota",
+        "Kalinga",
+        "Kartika",
+        "Latha",
+        "Lucida Console",
+        "MS Gothic",
+        "ＭＳ ゴシック",
+        "MS Mincho",
+        "ＭＳ 明朝",
+        "MS PGothic",
+        "ＭＳ Ｐゴシック",
+        "MS PMincho",
+        "ＭＳ Ｐ明朝",
+        "MV Boli",
+        "Malgun Gothic",
+        "Mangal",
+        "Meiryo",
+        "Meiryo UI",
+        "Microsoft Himalaya",
+        "Microsoft JhengHei",
+        "Microsoft JhengHei UI",
+        "Microsoft YaHei",
+        "微软雅黑",
+        "Microsoft YaHei UI",
+        "MingLiU",
+        "細明體",
+        "Noto Sans Buginese",
+        "Noto Sans Khmer",
+        "Noto Sans Lao",
+        "Noto Sans Myanmar",
+        "Noto Sans Yi",
+        "Nyala",
+        "PMingLiU",
+        "新細明體",
+        "Plantagenet Cherokee",
+        "Raavi",
+        "Segoe UI",
+        "Shruti",
+        "SimSun",
+        "宋体",
+        "Sylfaen",
+        "Tahoma",
+        "Times New Roman",
+        "Tunga",
+        "Verdana",
+        "Vrinda",
+        "Yu Gothic UI",
+    ],
+    macOS: [
+        "American Typewriter",
+        "Andale Mono",
+        "Arial",
+        "Arial Black",
+        "Arial Narrow",
+        "Arial Rounded MT Bold",
+        "Arial Unicode MS",
+        "Avenir",
+        "Avenir Next",
+        "Avenir Next Condensed",
+        "Baskerville",
+        "Big Caslon",
+        "Bodoni 72",
+        "Bodoni 72 Oldstyle",
+        "Bodoni 72 Smallcaps",
+        "Bradley Hand",
+        "Brush Script MT",
+        "Chalkboard",
+        "Chalkboard SE",
+        "Chalkduster",
+        "Charter",
+        "Cochin",
+        "Comic Sans MS",
+        "Copperplate",
+        "Courier",
+        "Courier New",
+        "Didot",
+        "DIN Alternate",
+        "DIN Condensed",
+        "Futura",
+        "Geneva",
+        "Georgia",
+        "Gill Sans",
+        "Helvetica",
+        "Helvetica Neue",
+        "Herculanum",
+        "Hoefler Text",
+        "Impact",
+        "Lucida Grande",
+        "Luminari",
+        "Marker Felt",
+        "Menlo",
+        "Microsoft Sans Serif",
+        "Monaco",
+        "Noteworthy",
+        "Optima",
+        "Palatino",
+        "Papyrus",
+        "Phosphate",
+        "Rockwell",
+        "Savoye LET",
+        "SignPainter",
+        "Skia",
+        "Snell Roundhand",
+        "Tahoma",
+        "Times",
+        "Times New Roman",
+        "Trattatello",
+        "Trebuchet MS",
+        "Verdana",
+        "Zapfino",
+    ],
+    Linux: [
+        "NotoSansDevanagari-Regular",
+        "NotoSerifLao-Regular",
+        "NotoSansKhmer-Regular",
+        "Cousine-Regular",
+        "STIXMath-Regular",
+        "NotoSerifArmenian-Regular",
+        "NotoSansMongolian-Regular",
+        "NotoSansJP-Regular",
+        "Arimo-Italic",
+        "Tinos-Italic",
+        "NotoSansCanadianAboriginal-Regular",
+        "NotoSansTC-Regular",
+        "Tinos-BoldItalic",
+        "NotoSansBuginese-Regular",
+        "NotoSerifThai-Regular",
+        "NotoSansMalayalam-Regular",
+        "TwemojiMozilla",
+        "NotoSansTelugu-Regular",
+        "Tinos-Bold",
+        "NotoSansGeorgian-Regular",
+        "Tinos-Regular",
+        "NotoSansLao-Regular",
+        "NotoSansTibetan-Regular",
+        "NotoSansKannada-Regular",
+        "NotoSansSC-Regular",
+        "NotoSansOriya-Regular",
+        "NotoSerifKhmer-Regular",
+        "NotoSansSinhala-Regular",
+        "NotoSansGujarati-Regular",
+        "NotoSansYi-Regular",
+        "NotoSansTamil-Regular",
+        "NotoSansEthiopic-Regular",
+        "Arimo-BoldItalic",
+        "NotoSansThai-Regular",
+        "NotoSansKR-Regular",
+        "NotoEmoji-Regular",
+        "NotoSansArmenian-Regular",
+        "Arimo-Regular",
+        "NotoSansBengali-Regular",
+        "NotoSansCherokee-Regular",
+        "Arimo-Bold",
+        "NotoSansHebrew-Regular",
+        "NotoSansThaana-Regular",
+        "NotoSansMyanmar-Regular",
+        "NotoNaskhArabic-Regular",
+        "NotoSansGurmukhi-Regular",
+    ],
+};
+
+const FONT_WHITELIST_LOOKUP_BY_PLATFORM = (() => {
+    return Object.keys(FONT_WHITELIST).reduce((map, k) => {
+        map[k] = new Set(FONT_WHITELIST[k].map((font) => font.toLowerCase()));
+        return map;
+    }, {});
+})();
+
+const exampleData = {
+    platform: "Windows",
+    requestedFonts: requested_fonts,
+};
+
+const platform = exampleData.platform;
+
+const allowedFonts = FONT_WHITELIST[platform.toLowerCase()];
+const allowedSet = FONT_WHITELIST_LOOKUP_BY_PLATFORM[platform.toLowerCase()];
+
+const requestedFonts = exampleData.requestedFonts;
+const requestedSet = new Set(requestedFonts.map((font) => font.toLowerCase()));
+
+const blockedSet = setDifference(requestedSet, allowedSet);
+
+console.log(`Fonts requested: ${requestedFonts}`);
+console.log(`Fonts allowed on ${platform} : ${allowedFonts}`);
+
+console.log("\n");
+console.log(`Number of fonts blocked : ${blockedSet.size} = ${[...blockedSet]}`);
+return blockedSet;
+}

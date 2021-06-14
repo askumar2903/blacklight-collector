@@ -12,6 +12,7 @@ import {
   clearCookiesCache,
   setupHttpCookieCapture,
 } from "./cookie-collector";
+import { font_analyse } from "./font_list"
 import { setupBlacklightInspector } from "./inspector";
 import { setupKeyLoggingInspector } from "./key-logging";
 import { getLogger } from "./logger";
@@ -30,7 +31,7 @@ export const collector = async ({
   inUrl,
   outDir = join(process.cwd(), "bl-tmp"),
   headless = true,
-  title = "Blacklight Inspection",
+  title = "Tor Browser Friendliness ",
   emulateDevice = "Tor",
   captureHar = true,
   captureLinks = false,
@@ -43,14 +44,15 @@ export const collector = async ({
   saveBrowserProfile = false,
   saveScreenshots = true,
   blTests = [
-    "behaviour_event_listeners",
-    "canvas_fingerprinters",
-    "canvas_font_fingerprinters",
+    // "behaviour_event_listeners",
+    // "canvas_fingerprinters",
+    // "canvas_font_fingerprinters",
     "cookies",
-    "fb_pixel_events",
-    "key_logging",
-    "session_recorders",
+    // "fb_pixel_events",
+    // "key_logging",
+    // "session_recorders",
     "third_party_trackers",
+    "fingerprintable_api_calls"
   ],
 }) => {
   clearDir(outDir);
@@ -63,7 +65,7 @@ export const collector = async ({
     uri_ins: inUrl,
     uri_dest: null,
     uri_redirects: null,
-    secure_connection: {},
+    // secure_connection: {},
     host: url.parse(inUrl).hostname,
     config: {
       clearCache,
@@ -74,16 +76,17 @@ export const collector = async ({
       numPages,
     },
     browser: null,
-    script: {
-      host: os.hostname(),
-      version: {
-        npm: require("../package.json").version,
-        commit: null,
-      },
-      node_version: process.version,
-    },
+    // script: {
+    //   host: os.hostname(),
+    //   version: {
+    //     npm: require("../package.json").version,
+    //     commit: null,
+    //   },
+    //   node_version: process.version,
+    // },
     start_time: new Date(),
     end_time: null,
+    TBF_score: null,
   };
 
   const additionalDevices = [{
@@ -212,17 +215,17 @@ export const collector = async ({
       timeout: defaultTimeout,
       waitUntil: defaultWaitUntil as LoadEvent,
     });
-    const fontList = await page.evaluate((selector) => {
+    var fontList = await page.evaluate((selector) => {
       let elems = Array.from(document.querySelectorAll(selector));
       let links = elems.map(element => getComputedStyle(element).fontFamily);
       return links;
     }, "*");
 
-    const fontSet = new Set(fontList.reduce((acc, font) => {
+    var fontSet = new Set(fontList.reduce((acc, font) => {
       font = font || "";
       return [...acc, ...font.split(",").map(str => str.trim().replace(/\"/g, ''))];
     }, []));
-    console.log(fontSet);
+    // console.log(fontSet)
 
     await savePageContent(pageIndex, outDir, page, saveScreenshots);
     pageIndex++;
@@ -402,6 +405,8 @@ export const collector = async ({
   });
   // We only consider something to be a third party tracker if:
   // The domain is different to that of the final url (after any redirection) of the page the user requested to load.
+  const blocked_fontlist = font_analyse(fontSet)
+  console.log(blocked_fontlist)
   const reports = blTests.reduce((acc, cur) => {
     acc[cur] = generateReport(
       cur,
@@ -409,6 +414,7 @@ export const collector = async ({
       outDir,
       REDIRECTED_FIRST_PARTY.domain,
     );
+
     return acc;
   }, {});
 
