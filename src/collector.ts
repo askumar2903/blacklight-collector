@@ -22,6 +22,7 @@ import {
 } from "./pptr-utils/default";
 import { dedupLinks, getLinks, getSocialLinks } from "./pptr-utils/get-links";
 import { autoScroll, fillForms } from "./pptr-utils/interaction-utils";
+import { calculate } from "./score-calculation";
 import { setupSessionRecordingInspector } from "./session-recording";
 import { setupThirdpartyTrackersInspector } from "./third-party-trackers";
 import { clearDir } from "./utils";
@@ -408,7 +409,8 @@ export const collector = async ({
     return acc;
   }, {});
 
-  const json_dump = JSON.stringify({ ...output, reports }, null, 2);
+  const result_json = { ...output, reports, score: calculate(reports) };
+  const json_dump = JSON.stringify(result_json, null, 2);
   writeFileSync(join(outDir, "inspection.json"), json_dump);
   if (outDir.includes("bl-tmp")) {
     clearDir(outDir, false);
