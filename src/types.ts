@@ -172,4 +172,5 @@ export const FINGERPRINTABLE_WINDOW_APIS = {
   PLUGIN: ["window.navigator.plugins"],
   SCREEN: ["window.screen.pixelDepth", "window.screen.colorDepth"],
   WEBRTC: ["RTCPeerConnection"],
+  WEBGL:["WebGLREnderingContext","WebGL2RenderingContext"],
 };

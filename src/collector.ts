@@ -69,15 +69,15 @@ export const collector = async ({
   saveBrowserProfile = false,
   saveScreenshots = true,
   blTests = [
-    // "behaviour_event_listeners",
+    "behaviour_event_listeners",
     // "canvas_fingerprinters",
     // "canvas_font_fingerprinters",
-    "cookies",
+    // "cookies",
     // "fb_pixel_events",
     // "key_logging",
     // "session_recorders",
-    "third_party_trackers",
-    "fingerprintable_api_calls",
+    // "third_party_trackers",
+    // "fingerprintable_api_calls",
     "filtered_fonts",
   ],
 }) => {
@@ -409,7 +409,7 @@ export const collector = async ({
     return acc;
   }, {});
 
-  const result_json = { ...output, reports, score: calculate(reports) };
+  const result_json = { ...output, reports, TB_Friendliness: calculate(reports) };
   const json_dump = JSON.stringify(result_json, null, 2);
   writeFileSync(join(outDir, "inspection.json"), json_dump);
   if (outDir.includes("bl-tmp")) {

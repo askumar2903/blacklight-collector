@@ -1,3 +1,4 @@
+import os from "os";
 import { getDomain } from "tldts";
 import { getCanvasFontFp, getCanvasFp } from "./canvas-fingerprinting";
 import { loadBrowserCookies, matchCookiesToEvents } from "./cookie-collector";
@@ -313,5 +314,5 @@ const getDomainSafely = (message: KeyLoggingEvent) => {
 };
 
 const reportFilteredFonts = ({ fonts }: { fonts: Set<string> }) => {
-  return [...getBlockedFonts("macOS", fonts)];
+  return [...getBlockedFonts(os.type(), fonts)];
 }

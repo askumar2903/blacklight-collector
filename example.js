@@ -1,6 +1,5 @@
 const { collector } = require("./build");
 const { join } = require("path");
-
 (async () => {
   const EMULATE_DEVICE = "Tor";
 
@@ -26,5 +25,6 @@ const { join } = require("path");
     console.log(
       `For captured data please look in ${join(__dirname, "demo-dir")}`
     );
+
   }
 })();
