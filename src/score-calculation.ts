@@ -1,22 +1,22 @@
-// const vulnerabilityFactor = {
-//     cookies: 0.2,
-//     fingerprinters: 0.2,
-//     trackers: 0.2,
-//     events: 0.2,
-//     fonts_blocked:0.2,
-// };
+const vulnerabilityFactor = {
+    cookies: 0.2,
+    fingerprinters: 0.2,
+    trackers: 0.2,
+    events: 0.2,
+    fonts_blocked:0.2,
+};
 
 
 const tot_metrics = 18;
-// const sigmoid = (x) => 1 / (1 + Math.exp(-x / 100));
+const sigmoid = (x) => 1 / (1 + Math.exp(-x / 100));
 
-// const getScore = (numbers) => {
-//     return Object.keys(vulnerabilityFactor).reduce((score, k) => {
-//         const x_i = numbers[k] || 0;
-//         const a_i = vulnerabilityFactor[k];
-//         return score + sigmoid(a_i * x_i * 10);
-//     }, 0);
-// };
+const getScore = (numbers) => {
+    return Object.keys(vulnerabilityFactor).reduce((score, k) => {
+        const x_i = numbers[k] || 0;
+        const a_i = vulnerabilityFactor[k];
+        return score + sigmoid(a_i * x_i * 10);
+    }, 0);
+};
 
 
 
@@ -79,23 +79,23 @@ export const calculate = (data: any) => {
     }
 
 
-    // var numFingerprinters = Object.values(fingerprinters).reduce(
-    //     (count, i) =>
-    //         count +
-    //         Object.values(i)
-    //             .map((j) => j.length)
-    //             .reduce((k, l) => k + l),
-    //     0,
-    // );
+    var numFingerprinters = Object.values(fingerprinters).reduce(
+        (count, i) =>
+            count +
+            Object.values(i)
+                .map((j) => j.length)
+                .reduce((k, l) => k + l),
+        0,
+    );
 
-    // const numevent_listeners = Object.values(events).reduce(
-    //     (count, i) =>
-    //         count +
-    //         Object.values(i)
-    //             .map((j) => j.length)
-    //             .reduce((k, l) => k + l),
-    //     0,
-    // );
+    const numevent_listeners = Object.values(events).reduce(
+        (count, i) =>
+            count +
+            Object.values(i)
+                .map((j) => j.length)
+                .reduce((k, l) => k + l),
+        0,
+    );
 
 
     const occurences = {
@@ -105,13 +105,25 @@ export const calculate = (data: any) => {
         events: numevent,
         fonts: numFonts,
     };
+
+    const vulnerability_score = {
+        third_cookies: numCookies,
+        fingerprinters_api: numFingerprinters,
+        third_trackers: numTrack,
+        events_listen: numevent_listeners,
+        blocked_fonts: numFonts,
+    };
+
     const count_metric = cookie_score + api_call + tp_score + font_score + numevent;
     const tbf_score = 100 - (count_metric / tot_metrics) * 100;
+    const vul_score = 10 - getScore(vulnerability_score)
     return {
         tbf_score,
         occurences,
         count_metric,
         tot_metrics,
+        vulnerability_score,
+        vul_score
 
     }
 };
