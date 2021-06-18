@@ -1,9 +1,9 @@
 const vulnerabilityFactor = {
-    cookies: 0.2,
-    fingerprinters: 0.2,
-    trackers: 0.2,
-    events: 0.2,
-    fonts_blocked:0.2,
+    cookies: 0.1,
+    fingerprinters: 0.1,
+    trackers: 0.1,
+    events: 0.1,
+    fonts_blocked:0.1,
 };
 
 
@@ -118,7 +118,7 @@ export const calculate = (data: any) => {
     const tbf_score = 100 - (count_metric / tot_metrics) * 100;
     const vul_score = 10 - getScore(vulnerability_score)
     return {
-        tbf_score,
+        tbf_score:Math.round(tbf_score),
         occurences,
         count_metric,
         tot_metrics,
