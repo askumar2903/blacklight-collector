@@ -1,14 +1,18 @@
 const { collector } = require("./build");
 const { join } = require("path");
 const { readdirSync, readFileSync, writeFileSync } = require("fs");
+const pLimit = require("p-limit");
+
 const EMULATE_DEVICE = "Tor";
+const PARALLEL_INSPECTION_LIMIT = 8;
 
 const INPUT_PATH = join(__dirname, "Input");
 const OUTPUT_PATH = join(__dirname, "Output");
 
-const files = readdirSync(INPUT_PATH);
+const limit = pLimit(PARALLEL_INSPECTION_LIMIT);
 
 const getUrls = () => {
+    const files = readdirSync(INPUT_PATH);
     const urls = files.flatMap((file) => {
         const filePath = join(INPUT_PATH, file);
         const contents = readFileSync(filePath).toString();
@@ -46,7 +50,7 @@ const createReport = (results) => {
     console.log("Capturing completed.\n");
 
     console.log("Inspection in progess. Please wait...");
-    const results = await Promise.all(urls.map(processUrl));
+    const results = await Promise.all(urls.map((u) => limit(() => processUrl(u))));
 
     results.map((res, i) => {
         const status = res.status == "success" ? "successful" : "failed";
