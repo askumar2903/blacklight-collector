@@ -4,7 +4,7 @@ const { readdirSync, readFileSync, writeFileSync } = require("fs");
 const pLimit = require("p-limit");
 
 const EMULATE_DEVICE = "Tor";
-const PARALLEL_INSPECTION_LIMIT = 8;
+const PARALLEL_INSPECTION_LIMIT = 5;
 
 const INPUT_PATH = join(__dirname, "Input");
 const OUTPUT_PATH = join(__dirname, "Output");
@@ -35,7 +35,9 @@ const processUrl = async (url) => {
         outDir: join(OUTPUT_PATH, url.replace(/https?:\/\//, "")),
     };
 
-    return collector(config);
+    return collector(config).then((value) => {
+        console.log(`${url} - completed`);
+    });
 };
 
 const createReport = (results) => {
@@ -50,13 +52,17 @@ const createReport = (results) => {
     console.log("Capturing completed.\n");
 
     console.log("Inspection in progess. Please wait...");
-    const results = await Promise.all(urls.map((u) => limit(() => processUrl(u))));
 
-    results.map((res, i) => {
-        const status = res.status == "success" ? "successful" : "failed";
-        console.log(`Processing of ${urls[i]} ${status}.`);
-    });
+    try {
+        const results = await Promise.all(urls.map((url) => limit(() => processUrl(url))));
 
-    console.log(`\n\nEnd of inspection.`);
-    createReport(results);
+        results.map((res, i) => {
+            const status = res.status == "success" ? "successful" : "failed";
+            console.log(`Processing of ${urls[i]} ${status}.`);
+        });
+        console.log(`\n\nEnd of inspection.`);
+        createReport(results);
+    } catch (e) {
+        console.log("Inspection failed");
+    }
 })();
