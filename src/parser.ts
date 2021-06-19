@@ -1,4 +1,3 @@
-import os from "os";
 import { getDomain } from "tldts";
 import { getCanvasFontFp, getCanvasFp } from "./canvas-fingerprinting";
 import { loadBrowserCookies, matchCookiesToEvents } from "./cookie-collector";
