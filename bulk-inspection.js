@@ -1,8 +1,6 @@
 const { collector } = require("./build");
 const { join } = require("path");
-const { readdirSync, readFileSync } = require("fs");
-const { mkdirSync } = require("fs");
-const { url } = require("inspector");
+const { readdirSync, readFileSync, writeFileSync } = require("fs");
 const EMULATE_DEVICE = "Tor";
 
 const INPUT_PATH = join(__dirname, "Input");
@@ -11,19 +9,17 @@ const OUTPUT_PATH = join(__dirname, "Output");
 const files = readdirSync(INPUT_PATH);
 
 const getUrls = () => {
-    const urls = files
-        .flatMap((file) => {
-            const filePath = join(INPUT_PATH, file);
-            const contents = readFileSync(filePath).toString();
+    const urls = files.flatMap((file) => {
+        const filePath = join(INPUT_PATH, file);
+        const contents = readFileSync(filePath).toString();
 
-            const urls = contents
-                .replace(/\r\n/g, "\n")
-                .split("\n")
-                .map((url) => url.trim())
-                .filter((url) => url.startsWith("https"));
-            return urls;
-        })
-        .slice(0, 3);
+        const urls = contents
+            .replace(/\r\n/g, "\n")
+            .split("\n")
+            .map((url) => url.trim())
+            .filter((url) => url.startsWith("https"));
+        return urls;
+    });
     return urls;
 };
 const processUrl = async (url) => {
@@ -36,6 +32,11 @@ const processUrl = async (url) => {
     };
 
     return collector(config);
+};
+
+const createReport = (results) => {
+    const reportString = results.map((result) => JSON.stringify(result.reports)).join("\r\n");
+    writeFileSync(join(OUTPUT_PATH, "inspection-report.ndjson"), reportString);
 };
 
 // main function
@@ -53,4 +54,5 @@ const processUrl = async (url) => {
     });
 
     console.log(`\n\nEnd of inspection.`);
+    createReport(results);
 })();

@@ -67,6 +67,7 @@ target/
 build
 **/*/inspection.json
 **/*/inspection-log.ndjson
+**/*/inspection-report.ndjson
 **/*/inspection.json
 **/*/requests.har
 **/*/browser-cookies.json
