@@ -415,7 +415,7 @@ export const collector = async ({
   if (outDir.includes("bl-tmp")) {
     clearDir(outDir, false);
   }
-  return { status: "success", ...output, reports };
+  return { status: "success", ...result_json };
 };
 
 const getFonts = async (page: puppeteer.Page) => {

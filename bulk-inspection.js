@@ -40,10 +40,11 @@ const processUrl = async (url) => {
 
     return collector(config).then((result) => {
         if (result.status === "success") {
-            reportFile.write(JSON.stringify(result.reports) + "\r\n");
+            const { TB_Friendliness: scores } = result;
+            reportFile.write(JSON.stringify({ url, ...scores }) + "\r\n");
             console.log(`${url} - completed`);
         } else {
-            console.log(`${url} - failed`);
+            console.log(`${url} - failed ${result.page_response ? "- Reason: " + result.page_response.message : ""}`);
         }
     });
 };
@@ -57,6 +58,7 @@ const processUrl = async (url) => {
     console.log("Inspection in progess. Please wait...");
     try {
         const results = await Promise.all(urls.map((url) => limit(() => processUrl(url))));
+        reportFile.close();
     } catch (e) {
         console.log("Inspection failed", e);
     } finally {
