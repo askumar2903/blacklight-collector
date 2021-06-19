@@ -1,6 +1,6 @@
 const { collector } = require("./build");
 const { join } = require("path");
-const { readdirSync, readFileSync, writeFileSync } = require("fs");
+const { createWriteStream, readdirSync, readFileSync, mkdirSync } = require("fs");
 const pLimit = require("p-limit");
 
 const EMULATE_DEVICE = "Tor";
@@ -8,6 +8,9 @@ const PARALLEL_INSPECTION_LIMIT = 5;
 
 const INPUT_PATH = join(__dirname, "Input");
 const OUTPUT_PATH = join(__dirname, "Output");
+mkdirSync(OUTPUT_PATH, { recursive: true });
+
+const reportFile = createWriteStream(join(OUTPUT_PATH, "inspection-report.ndjson"), { flags: "w" });
 
 const limit = pLimit(PARALLEL_INSPECTION_LIMIT);
 
@@ -35,14 +38,14 @@ const processUrl = async (url) => {
         outDir: join(OUTPUT_PATH, url.replace(/https?:\/\//, "")),
     };
 
-    return collector(config).then((value) => {
-        console.log(`${url} - completed`);
+    return collector(config).then((result) => {
+        if (result.status === "success") {
+            reportFile.write(JSON.stringify(result.reports) + "\r\n");
+            console.log(`${url} - completed`);
+        } else {
+            console.log(`${url} - failed`);
+        }
     });
-};
-
-const createReport = (results) => {
-    const reportString = results.map((result) => JSON.stringify(result.reports)).join("\r\n");
-    writeFileSync(join(OUTPUT_PATH, "inspection-report.ndjson"), reportString);
 };
 
 // main function
@@ -52,17 +55,11 @@ const createReport = (results) => {
     console.log("Capturing completed.\n");
 
     console.log("Inspection in progess. Please wait...");
-
     try {
         const results = await Promise.all(urls.map((url) => limit(() => processUrl(url))));
-
-        results.map((res, i) => {
-            const status = res.status == "success" ? "successful" : "failed";
-            console.log(`Processing of ${urls[i]} ${status}.`);
-        });
-        console.log(`\n\nEnd of inspection.`);
-        createReport(results);
     } catch (e) {
-        console.log("Inspection failed");
+        console.log("Inspection failed", e);
+    } finally {
+        console.log("Exiting.");
     }
 })();
