@@ -16,7 +16,7 @@ import {
   SessionRecordingEvent,
   TrackingRequestEvent,
 } from "./types";
-import { getScriptUrl, groupBy, loadJSONSafely } from "./utils";
+import { getOsType, getScriptUrl, groupBy, loadJSONSafely } from "./utils";
 
 export const generateReport = (reportType, messages, dataDir, url, metadata) => {
   const eventData = getEventData(reportType, messages);
@@ -314,5 +314,5 @@ const getDomainSafely = (message: KeyLoggingEvent) => {
 };
 
 const reportFilteredFonts = ({ fonts }: { fonts: Set<string> }) => {
-  return [...getBlockedFonts(os.type(), fonts)];
+  return [...getBlockedFonts(getOsType(), fonts)];
 }

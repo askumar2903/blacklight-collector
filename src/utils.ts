@@ -32,7 +32,7 @@ export const clearDir = (outDir, mkNewDir = true) => {
     deleteFolderRecursive(outDir);
   }
   if (mkNewDir) {
-    fs.mkdirSync(outDir);
+    fs.mkdirSync(outDir, { recursive: true });
   }
 };
 
@@ -142,4 +142,17 @@ export const getHashedValues = (algorithm, object) => {
         : getStringHash(algorithm, cur[1]);
     return acc;
   }, {});
+};
+
+
+export const getOsType = () => {
+  let opsys: string = process.platform.toLowerCase();
+  if (opsys === "darwin") {
+    opsys = "MacOS";
+  } else if (opsys === "win32" || opsys === "win64") {
+    opsys = "Windows";
+  } else if (opsys === "linux") {
+    opsys = "Linux";
+  }
+  return opsys;
 };
