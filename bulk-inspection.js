@@ -4,7 +4,7 @@ const { createWriteStream, readdirSync, readFileSync, mkdirSync } = require("fs"
 const pLimit = require("p-limit");
 
 const EMULATE_DEVICE = "Tor";
-const PARALLEL_INSPECTION_LIMIT = 5;
+const PARALLEL_INSPECTION_LIMIT = 3;
 
 const INPUT_PATH = join(__dirname, "Input");
 const OUTPUT_PATH = join(__dirname, "Output");

@@ -8,13 +8,14 @@ const vulnerabilityFactor = {
 
 
 const tot_metrics = 18;
-const sigmoid = (x) => (1 / (1 + Math.exp(-x)) - 0.5);
+// const sigmoid = (x) => (1 / (1 + Math.exp(-x)) - 0.5);
 
-const getScore = (numbers) => {
+
+const getScore = (numbers,metric) => {
     return Object.keys(vulnerabilityFactor).reduce((score, k) => {
         const x_i = numbers[k] || 0;
         const a_i = vulnerabilityFactor[k];
-        return score + sigmoid(a_i * x_i);
+        return score + (a_i * x_i)/metric;
     }, 0);
 };
 
@@ -58,7 +59,7 @@ export const calculate = (data: any) => {
     //     blockedFonts: numFonts,
     // };
 
-    const vulnerability_score = {
+    const metric_count = {
         cookies: numCookies,
         fingerprinters: numFingerprinters,
         trackers: numTrack,
@@ -68,13 +69,18 @@ export const calculate = (data: any) => {
 
     const count_metric = cookie_score + api_call + tp_score + font_score + numevent;
     const tbf_score = 100 - (count_metric / tot_metrics) * 100;
-    const vul_score = 10 - getScore(vulnerability_score);
+    // const vul_score = 10 - getScore(vulnerability_score,count_metric);
+    const severity_score = getScore(metric_count,count_metric);
     return {
         tbf_score: Math.round(tbf_score),
         count_metric,
         tot_metrics,
-        vulnerability_score,
-        vul_score
+        severity_score: severity_score.toFixed(2),
+        cookies: numCookies,
+        fingerprinters: numFingerprinters,
+        trackers: numTrack,
+        events: numevent_listeners,
+        blockedFonts: numFonts,
     }
 };
 
