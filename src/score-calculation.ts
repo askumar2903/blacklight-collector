@@ -52,13 +52,6 @@ export const calculate = (data: any) => {
         0,
     );
 
-    // const occurences = {
-    //     cookies: numCookies,
-    //     fingerprinters: api_call,
-    //     trackers: numTrack,
-    //     events: numevent,
-    //     blockedFonts: numFonts,
-    // };
 
     const metric_count = {
         cookies: numCookies,
