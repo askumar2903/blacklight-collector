@@ -3,7 +3,7 @@ const vulnerabilityFactor = {
     fingerprinters: 0.1,
     trackers: 0.1,
     events: 0.1,
-    fonts_blocked: 0.1,
+    blockedFonts: 0.1,
 };
 
 
@@ -15,7 +15,8 @@ const getScore = (numbers,metric) => {
     return Object.keys(vulnerabilityFactor).reduce((score, k) => {
         const x_i = numbers[k] || 0;
         const a_i = vulnerabilityFactor[k];
-        return score + (a_i * x_i)/metric;
+        const met = metric
+        return score + (a_i * x_i)/met;
     }, 0);
 };
 
