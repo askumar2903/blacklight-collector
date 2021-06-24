@@ -1,11 +1,5 @@
 # Tor-Browser-Friendliness
 
-For more information about the `blacklight-collector` please read our [methodology](https://themarkup.org/blacklight/2020/09/22/how-we-built-a-real-time-privacy-inspector).
-
-`blacklight-collector` is available on npm. You can add it to your own project with the following command.
-
-```
-npm i @themarkup/blacklight-collector
 ```
 
 If you are interested in running it locally you can clone this repository and follow the instructions below.
@@ -19,6 +13,10 @@ If you are interested in running it locally you can clone this repository and fo
 ## Usage
 
 `node example.js`.
+
+For bulk urls and to avoid node memory heap error
+
+`node --max-old-space-size=8192 bulk-inspection.js`
 
 Results are stored in `demo-dir` by default
 
@@ -35,12 +33,9 @@ Results are stored in `demo-dir` by default
   - Array of tests to run
   - default: All
     - "behaviour_event_listeners"
-    - "canvas_fingerprinters"
-    - "canvas_font_fingerprinters"
+    - "fingerprinting_api_calls"
+    - "filtered_fonts"
     - "cookies"
-    - "fb_pixel_events"
-    - "key_logging"
-    - "session_recorders"
     - "third_party_trackers"
 - `numPages`
   - default: 3
@@ -68,7 +63,7 @@ Results are stored in `demo-dir` by default
   - default: true
   - dont pipe raw event data to stdout
 - `title`
-  - default: 'Blacklight Inspection'
+  - default: 'Tor Browser Friendliness'
 - `saveScreenshots`
   - default: true
 - `defaultTimeout`
@@ -80,7 +75,7 @@ Results are stored in `demo-dir` by default
 
 ## Inspection Result
 
-`blacklight-collector` creates a few different assets at the end of an inspection, these include:
+The package creates a few different assets at the end of an inspection, these include:
 
 - **browser-cookies.json**
   - JSON file containing a list of all the cookies set on that website.
@@ -110,39 +105,10 @@ Results are stored in `demo-dir` by default
   - _TIP:_ Firefox lets you import a HAR file and visualize it using the network tab in the developer tools.
   - You can also view it [here](https://toolbox.googleapps.com/apps/har_analyzer/).
 
+Inside output folder, it creates the above set of assets for each and every URL that is being passed
+- **inpsection-report.ndjson** - This has report of all metrics that are being identified along with severity_score and Tor browser friendliness score. 
 ```
-const { collector } = require("@themarkup/blacklight-collector");
-const { join } = require("path");
-
-(async () => {
-  const EMULATE_DEVICE = false;
-
- // Save the results to a folder
-  let OUT_DIR = true;
-
-  // The URL to test
-  const URL = "jetblue.com";
-
-  const defaultConfig = {
-    inUrl: `http://${URL}`,
-    numPages: 2,
-    headless: false,
-    emulateDevice: EMULATE_DEVICE
-  };
-
-  const result = await collector(
-    OUT_DIR
-      ? { ...defaultConfig, ...{ outDir: join(__dirname, "demo-dir") } }
-      : defaultConfig
-  );
-  if (OUT_DIR) {
-    console.log(
-      `For captured data please look in ${join(__dirname, "demo-dir")}`
-    );
-  }
-})();
 
 ```
 
-Blacklight would not be possible without the work of [OpenWPM](https://github.com/mozilla/OpenWPM)
-and the EU-EDPS's [website evidence collector](https://github.com/EU-EDPS/website-evidence-collector)
+This project is built as an extenstion to blacklight-collector [https://github.com/the-markup/blacklight-collector]
