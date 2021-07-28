@@ -10,7 +10,7 @@ const INPUT_PATH = join(__dirname, "Input");
 const OUTPUT_PATH = join(__dirname, "Output");
 mkdirSync(OUTPUT_PATH, { recursive: true });
 
-const reportFile = createWriteStream(join(OUTPUT_PATH, "inspection-report.ndjson"), { flags: "w" });
+const reportFile = createWriteStream(join(OUTPUT_PATH, "inspection-report.ndjson"), { flags: "a" });
 
 const limit = pLimit(PARALLEL_INSPECTION_LIMIT);
 
